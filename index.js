@@ -36,8 +36,15 @@ async function run() {
     });
     app.get("/allToys", async (req, res) => {
       const limit = parseInt(req.query.limit);
-      console.log(limit);
-      const result = await toysCollection.find().limit(limit).toArray()
+      const result = await toysCollection.find().limit(limit).toArray();
+      res.send(result);
+    });
+    app.get("/myToys", async (req, res) => {
+      const email = req.query.email;
+      const query = { sellerEmail: email };
+      console.log(query);
+      const result = await toysCollection.find(query).toArray();
+      console.log(result);
       res.send(result);
     });
 
