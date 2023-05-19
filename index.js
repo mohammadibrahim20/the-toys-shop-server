@@ -28,7 +28,7 @@ async function run() {
 
     const toysCollection = client.db("toysManagement").collection("toys");
 
-/*     const indexKeys = { productName: 1 }; // Replace field1 and field2 with your actual field names
+    /*     const indexKeys = { productName: 1 }; // Replace field1 and field2 with your actual field names
     const indexOptions = { name: "titleCategory" }; // Replace index_name with the desired index name
     const result = await toysCollection.createIndex(indexKeys, indexOptions); */
 
@@ -47,13 +47,40 @@ async function run() {
     });
     app.get("/myToys", async (req, res) => {
       const email = req.query.email;
+      const sorting = req.query.sort;
+
+      if (sorting === "all") {
+        const query = { sellerEmail: email };
+        const result = await toysCollection.find(query).toArray();
+        res.send(result);
+      }
+      if (sorting === "low") {
+        const query = { sellerEmail: email };
+        const result = await toysCollection
+          .find(query)
+          .sort({ price: 1 })
+          .toArray();
+        res.send(result);
+      }
+      if (sorting === "high") {
+        const query = { sellerEmail: email };
+        const result = await toysCollection
+          .find(query)
+          .sort({ price: -1 })
+          .toArray();
+        res.send(result);
+      }
+    });
+
+    /*   app.get("/myToys", async (req, res) => {
+      const email = req.query.email;
       const query = { sellerEmail: email };
       const result = await toysCollection.find(query).toArray();
       res.send(result);
-    });
+    }); */
+
     app.get("/category", async (req, res) => {
       const category = req.query.category;
-      console.log(category);
       const query = { subcategory: category };
       const result = await toysCollection.find(query).limit(3).toArray();
       res.send(result);
@@ -61,7 +88,6 @@ async function run() {
 
     app.get("/toy/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const query = { _id: new ObjectId(id) };
       const result = await toysCollection.findOne(query);
       res.send(result);
@@ -69,14 +95,13 @@ async function run() {
 
     app.delete("/toy/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const query = { _id: new ObjectId(id) };
       const result = await toysCollection.deleteOne(query);
       res.send(result);
     });
 
-    app.get("/search", async (req, res) => {
-      const text = req.query.text;
+    app.get("/search/:text", async (req, res) => {
+      let text = req.params.text;
       const result = await toysCollection
         .find({
           $or: [{ productName: { $regex: text, $options: "i" } }],
