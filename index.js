@@ -45,6 +45,14 @@ async function run() {
       const result = await toysCollection.find(query).toArray();
       res.send(result);
     });
+    app.get("/category", async (req, res) => {
+      const category = req.query.category;
+      console.log(category);
+      const query = { subcategory: category };
+      const result = await toysCollection.find(query).limit(3).toArray();
+      res.send(result);
+    });
+
     app.get("/toy/:id", async (req, res) => {
       const id = req.params.id;
       console.log(id);
@@ -55,6 +63,7 @@ async function run() {
 
     app.delete("/toy/:id", async (req, res) => {
       const id = req.params.id;
+      console.log(id);
       const query = { _id: new ObjectId(id) };
       const result = await toysCollection.deleteOne(query);
       res.send(result);
