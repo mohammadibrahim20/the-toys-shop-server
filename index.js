@@ -28,6 +28,12 @@ async function run() {
 
     const toysCollection = client.db("toysManagement").collection("toys");
 
+/*     const indexKeys = { productName: 1 }; // Replace field1 and field2 with your actual field names
+    const indexOptions = { name: "titleCategory" }; // Replace index_name with the desired index name
+    const result = await toysCollection.createIndex(indexKeys, indexOptions); */
+
+    // console.log(result);
+
     app.post("/addToys", async (req, res) => {
       const data = req.body;
       console.log(data);
@@ -66,6 +72,17 @@ async function run() {
       console.log(id);
       const query = { _id: new ObjectId(id) };
       const result = await toysCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.get("/search", async (req, res) => {
+      const text = req.query.text;
+      const result = await toysCollection
+        .find({
+          $or: [{ productName: { $regex: text, $options: "i" } }],
+        })
+        .toArray();
+
       res.send(result);
     });
 
