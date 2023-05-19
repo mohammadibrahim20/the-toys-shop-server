@@ -111,6 +111,19 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/updates/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const doc = req.body;
+      const updateDoc = {
+        $set: {
+          ...doc,
+        },
+      };
+      const result = await toysCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
