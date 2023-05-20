@@ -24,7 +24,8 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect();
+    // await client.connect();
 
     const toysCollection = client.db("toysManagement").collection("toys");
 
@@ -36,7 +37,6 @@ async function run() {
 
     app.post("/addToys", async (req, res) => {
       const data = req.body;
-      console.log(data);
       const result = await toysCollection.insertOne(data);
       res.send(result);
     });
@@ -46,7 +46,9 @@ async function run() {
       res.send(result);
     });
     app.get("/myToys", async (req, res) => {
-      const email = req.query.email;
+      let email = req.query.email;
+
+    
       const sorting = req.query.sort;
 
       if (sorting === "all") {
