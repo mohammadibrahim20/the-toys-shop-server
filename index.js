@@ -48,7 +48,6 @@ async function run() {
     app.get("/myToys", async (req, res) => {
       let email = req.query.email;
 
-    
       const sorting = req.query.sort;
 
       if (sorting === "all") {
@@ -59,27 +58,64 @@ async function run() {
       if (sorting === "low") {
         const query = { sellerEmail: email };
         const result = await toysCollection
-          .find(query)
-          .sort({ price: 1 })
-          .toArray();
+        .aggregate([
+          {
+            $match: query
+          },
+          {
+            $addFields: {
+              priceNumeric: {
+                $toDouble: "$price"
+              }
+            }
+          },
+          {
+            $sort: {
+              priceNumeric: -1
+            }
+          },
+          {
+            $project: {
+              priceNumeric: 0
+            }
+          }
+        ])
+        .toArray()
+        result.reverse()
         res.send(result);
       }
       if (sorting === "high") {
         const query = { sellerEmail: email };
         const result = await toysCollection
-          .find(query)
-          .sort({ price: -1 })
-          .toArray();
+        .aggregate([
+          {
+            $match: query
+          },
+          {
+            $addFields: {
+              priceNumeric: {
+                $toDouble: "$price"
+              }
+            }
+          },
+          {
+            $sort: {
+              priceNumeric: -1
+            }
+          },
+          {
+            $project: {
+              priceNumeric: 0
+            }
+          }
+        ])
+        .toArray();
         res.send(result);
       }
+      
     });
 
-    /*   app.get("/myToys", async (req, res) => {
-      const email = req.query.email;
-      const query = { sellerEmail: email };
-      const result = await toysCollection.find(query).toArray();
-      res.send(result);
-    }); */
+  
 
     app.get("/category", async (req, res) => {
       const category = req.query.category;
